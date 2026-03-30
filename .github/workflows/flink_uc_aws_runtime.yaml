@@ -1,0 +1,47 @@
+name: "Delta Flink UC AWS Runtime"
+
+on:
+  push:
+    branches:
+      - "codex/flink-bugbash-artifact"
+
+jobs:
+  resolve-aws-runtime:
+    name: "Resolve UC AWS runtime jars"
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
+      - name: Write dependency pom
+        run: |
+          cat > pom.xml <<'EOF'
+          <project xmlns="http://maven.apache.org/POM/4.0.0"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+            <modelVersion>4.0.0</modelVersion>
+            <groupId>local.codex</groupId>
+            <artifactId>flink-uc-aws-runtime</artifactId>
+            <version>1.0.0</version>
+            <dependencies>
+              <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3-transfer-manager</artifactId>
+                <version>2.38.4</version>
+              </dependency>
+            </dependencies>
+          </project>
+          EOF
+
+      - name: Copy runtime dependencies
+        run: mvn -q dependency:copy-dependencies -DincludeScope=runtime -DoutputDirectory=deps
+
+      - name: Upload runtime jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: delta-flink-uc-aws-runtime
+          path: deps/*.jar
+          if-no-files-found: error
