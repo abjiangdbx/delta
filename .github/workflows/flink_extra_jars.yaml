@@ -1,0 +1,26 @@
+name: "Delta Flink Extra Jars"
+
+on:
+  push:
+    branches:
+      - "codex/flink-bugbash-artifact"
+
+jobs:
+  fetch-extra-jars:
+    name: "Fetch Flink runtime extras"
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download AWS bundle
+        run: wget -nv https://repo1.maven.org/maven2/software/amazon/awssdk/bundle/2.23.19/bundle-2.23.19.jar
+
+      - name: Download Guava
+        run: wget -nv https://repo1.maven.org/maven2/com/google/guava/guava/33.5.0-jre/guava-33.5.0-jre.jar
+
+      - name: Upload runtime extras
+        uses: actions/upload-artifact@v4
+        with:
+          name: delta-flink-extra-jars
+          path: |
+            bundle-2.23.19.jar
+            guava-33.5.0-jre.jar
+          if-no-files-found: error
