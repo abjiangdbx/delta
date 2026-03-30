@@ -1,0 +1,21 @@
+name: "Delta Flink S3 Jar"
+
+on:
+  push:
+    branches:
+      - "codex/flink-bugbash-artifact"
+
+jobs:
+  fetch-s3-jar:
+    name: "Fetch AWS SDK S3 jar"
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download AWS SDK S3 module
+        run: wget -nv https://repo1.maven.org/maven2/software/amazon/awssdk/s3/2.38.4/s3-2.38.4.jar
+
+      - name: Upload S3 jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: delta-flink-s3-jar
+          path: s3-2.38.4.jar
+          if-no-files-found: error
