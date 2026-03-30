@@ -1,0 +1,42 @@
+name: "Delta Flink Artifact"
+
+on:
+  push:
+    branches:
+      - "codex/flink-bugbash-artifact"
+
+jobs:
+  build-artifact:
+    name: "Build Flink assembly jar"
+    runs-on: ubuntu-24.04
+    env:
+      SBT_OPTS: "-Dsbt.coursier.home-dir=/home/runner/.cache/coursier -Dsbt.ivy.home=/home/runner/.ivy2"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
+      - name: Cache SBT and dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.sbt
+            ~/.ivy2/cache
+            ~/.coursier/cache
+            ~/.cache/coursier
+          key: sbt-flink-artifact
+
+      - name: Build Flink assembly
+        run: build/sbt flink/assembly
+
+      - name: Upload Flink assembly
+        uses: actions/upload-artifact@v4
+        with:
+          name: delta-flink-assembly
+          path: flink/target/delta-flink-*.jar
+          if-no-files-found: error
