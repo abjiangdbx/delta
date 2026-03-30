@@ -1,0 +1,21 @@
+name: "Delta Flink S3 Transfer Jar"
+
+on:
+  push:
+    branches:
+      - "codex/flink-bugbash-artifact"
+
+jobs:
+  fetch-s3-transfer-jar:
+    name: "Fetch AWS SDK S3 transfer jar"
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download AWS SDK S3 transfer module
+        run: wget -nv https://repo1.maven.org/maven2/software/amazon/awssdk/s3-transfer-manager/2.38.4/s3-transfer-manager-2.38.4.jar
+
+      - name: Upload S3 transfer jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: delta-flink-s3-transfer-jar
+          path: s3-transfer-manager-2.38.4.jar
+          if-no-files-found: error
